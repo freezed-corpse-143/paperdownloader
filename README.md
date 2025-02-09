@@ -20,13 +20,10 @@ This project provides a tool to download academic papers based on their titles u
    ```
 
 2. Install the required Python packages:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
+   
 3. Download the EdgeDriver executable and place it in a known location. Update the path in `paper_downloader.py` if necessary:
    ```python
-   service = Service(r"D:\Applications\edgedriver\msedgedriver.exe")
+   service = Service(r"{your edge driver path}\msedgedriver.exe")
    ```
 
 ## Usage

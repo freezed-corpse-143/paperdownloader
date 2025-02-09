@@ -22,9 +22,7 @@ def download_from_url(save_dir, url, downloader="requests"):
     cmd = cmd_prefix + f"-d {os.path.abspath(save_dir)} {url}"
 
     try:
-        # 启动子进程执行下载命令
-        print(cmd
-              )
+        print(cmd)
         subprocess.run(cmd, shell=True, check=True)
         print(f"Download completed successfully to {save_dir}")
     except subprocess.CalledProcessError as e:
@@ -42,26 +40,19 @@ def read_title_list(title_list_path, start_char_idx):
 
 # parser
 def bing_parser_result_html(html_txt):
-    # 使用BeautifulSoup解析页面源码
     soup = BeautifulSoup(html_txt, 'html.parser')
 
-    # 找到<main>容器
     main_container = soup.find('main')
 
-    # 找到<ol>容器
     ol_container = main_container.find('ol')
 
-    # 初始化大列表
     result_list = []
 
-    # 遍历每个<li>容器
     for li in ol_container.find_all('li'):
-        # 找到第一个<h2>容器下的<a>容器
         h2 = li.find('h2')
         if h2:
             a_tag = h2.find('a')
             if a_tag:
-                # 提取href和内部文本
                 text = a_tag.get_text(strip=True)
                 href = a_tag.get('href')
 
@@ -77,12 +68,10 @@ def bing_parser_result_html(html_txt):
                 except Exception as e:
                     print(parsed_url.query)
                     raise e
-                # 将结果添加到列表中
                 result_list.append(decoded_url)
     return result_list
 
 def select_download_url(url_list):
-    # 筛选出包含pdf的url
     for url in url_list:
         if url.endswith(".pdf"):
             return url
@@ -92,7 +81,7 @@ def select_download_url(url_list):
             return url.replace("abs", "pdf")
         if url.startswith("https://openreview.net/pdf"):
             return url
-        if url.startswith("https://openreview.net/forum")
+        if url.startswith("https://openreview.net/forum"):
             return url.replace("forum", "pdf")
     return None
 
@@ -100,9 +89,9 @@ def select_download_url(url_list):
 def bing_search_title_url(title):
     options = Options()
     options.add_argument('log-level=INT')
-    options.add_argument("--headless")  # 无头模式，不打开浏览器窗口
-    options.add_argument("--disable-gpu")  # 禁用 GPU 渲染
-    options.add_argument("--no-sandbox")  # 禁用沙盒模式
+    options.add_argument("--headless")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--no-sandbox")
     service = Service(r"D:\Applications\edgedriver\msedgedriver.exe")
     driver = webdriver.Edge(service=service, options=options)
 
