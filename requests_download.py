@@ -7,7 +7,7 @@ def download_file(url, directory):
         response = requests.get(url, stream=True)
         response.raise_for_status()
 
-        file_name = os.path.basename(url)
+        file_name = os.path.basename(url).split("=")[-1]
 
         file_path = os.path.join(directory, file_name)
         if not file_path.endswith(".pdf"):

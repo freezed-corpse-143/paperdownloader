@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 from urllib.parse import urlparse, parse_qs
 import base64
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import argparse
 
@@ -20,13 +21,15 @@ def download_from_url(save_dir, url, downloader="requests"):
         raise ValueError(f"don't support downloader {downloader}")
 
     cmd = cmd_prefix + f"-d {os.path.abspath(save_dir)} {url}"
+    return cmd
 
+def run_command(cmd):
     try:
-        print(cmd)
-        subprocess.run(cmd, shell=True, check=True)
-        print(f"Download completed successfully to {save_dir}")
+        # 使用 subprocess.run 执行命令
+        result = subprocess.run(cmd, shell=True, check=True, text=True, capture_output=True)
+        return cmd, result.stdout, None  # 返回命令、标准输出和错误（无错误时为 None）
     except subprocess.CalledProcessError as e:
-        print(f"Download failed with error: {e}")
+        return cmd, e.stdout, e.stderr  # 如果命令执行失败，返回错误信息
 
 def read_title_list(title_list_path, start_char_idx):
     title_list = []
@@ -111,12 +114,48 @@ def process_title(title, downloader, save_dir):
     url = bing_search_title_url(title)
     if url is None:
         print(f"No URL found for title: {title}")
+        return "", title
     else:
-        download_from_url(save_dir, url, downloader)
+        return download_from_url(save_dir, url, downloader), title
 
 def get_pdf_from_title_list(title_list, downloader, save_dir):
-    for title in title_list:
-        process_title(title, downloader, save_dir)
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        futures = [executor.submit(process_title, title, downloader, save_dir) for title in title_list]
+
+    cmd_list = []
+    error_title_list = []
+    for future in as_completed(futures):
+        try:
+            cmd, title = future.result()
+            if cmd != "" and cmd not in cmd_list:
+                cmd_list.append(cmd)
+            else:
+                error_title_list.append(title)
+        except Exception as e:
+            print(f"An error occurred: {e}")
+    with open("./cmd_list.txt", 'w', encoding='utf-8') as f:
+        f.write("\n".join(cmd_list))
+
+    with open("./error_title_list.txt", 'w', encoding='utf-8') as f:
+        f.write("\n".join(error_title_list))
+
+def batch_run_cmd(cmd_list):
+    with ThreadPoolExecutor(max_workers=3) as executor:
+        # 提交任务到线程池
+        futures = {executor.submit(run_command, cmd): cmd for cmd in cmd_list}
+
+        # 遍历已完成的任务
+        for future in as_completed(futures):
+            cmd = futures[future]  # 获取对应的命令
+            try:
+                cmd, stdout, stderr = future.result()  # 获取任务结果
+                if stderr:
+                    print(f"Command failed: {cmd}\nError: {stderr}")
+                else:
+                    print(f"Command succeeded: {cmd}\nOutput: {stdout}")
+            except Exception as e:
+                print(f"Unexpected error occurred while running command {cmd}: {e}")
+
 def main():
     parser = argparse.ArgumentParser(description="Download papers based on titles.")
     parser.add_argument("--title_list_path", type=str, help="Path to the file containing the list of titles.")
@@ -129,6 +168,10 @@ def main():
 
     get_pdf_from_title_list(title_list, downloader=args.downloader, save_dir=args.save_dir)
     
+    with open("./cmd_list.txt", encoding='utf-8') as f:
+        cmd_list = f.read().split("\n")
+
+    batch_run_cmd(cmd_list)
 
 if __name__ == "__main__":
     main()
