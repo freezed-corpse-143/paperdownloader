@@ -83,8 +83,9 @@ def select_download_url(url_list):
             return url
         if url.startswith("https://openreview.net/forum"):
             return url.replace("forum", "pdf")
+        if url.startswith("https://ojs.aaai.org/index.php/AAAI/article/download/"):
+            return url
     return None
-
 # search title
 def bing_search_title_url(title):
     options = Options()
