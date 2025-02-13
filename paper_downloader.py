@@ -83,7 +83,7 @@ def select_download_url(url_list):
         if url.startswith("https://arxiv.org/abs/"):
             return url.replace("abs", "pdf")
         if url.startswith("https://arxiv.org/html/"):
-            return url.replace("abs", "pdf")
+            return url.replace("html", "pdf")
         if url.startswith("https://openreview.net/pdf"):
             return url
         if url.startswith("https://openreview.net/forum"):
