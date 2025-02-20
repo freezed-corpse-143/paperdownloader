@@ -104,11 +104,21 @@ def bing_search_title_url(title):
     url = f"https://www.bing.com/search?q={title.replace(' ', '+')}+pdf&num=10"
     print(url)
     driver.get(url)
-    time.sleep(5)
-    response_txt = driver.page_source
+    timeout = 6  # seconds
+    target_url = None
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        response_txt = driver.page_source
+        
+        title_url_list = bing_parser_result_html(response_txt)
+        
+        target_url = select_download_url(title_url_list)
+        
+        if target_url:
+            break
+        
+        time.sleep(1)
     driver.quit()
-    title_url_list = bing_parser_result_html(response_txt)
-    target_url = select_download_url(title_url_list)
     print(f"target url: {target_url}")
     return target_url
 
