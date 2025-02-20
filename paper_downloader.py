@@ -98,7 +98,7 @@ def bing_search_title_url(title):
     options.add_argument("--headless")
     options.add_argument("--disable-gpu")
     options.add_argument("--no-sandbox")
-    service = Service(r"D:\Applications\edgedriver\msedgedriver.exe")
+    service = Service(r"./msedgedriver.exe")
     driver = webdriver.Edge(service=service, options=options)
 
     url = f"https://www.bing.com/search?q={title.replace(' ', '+')}+pdf&num=10"
