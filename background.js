@@ -78,7 +78,10 @@
                 const downloadUrl = selectDownloadUrl(resultList);
 
                 if (downloadUrl) {
-                    GM_download({ url: downloadUrl, name: `${title}.pdf` });
+                    // 替换掉 Windows 文件名中不允许的字符
+                    const safeTitle = title.replace(/[\\\/:*?"<>|\r\n]/g, '');
+
+                    GM_download({ url: downloadUrl, name: `${safeTitle}.pdf` });
                 } else {
                     console.warn(`未找到 ${title} 的 PDF 下载链接`);
                 }
