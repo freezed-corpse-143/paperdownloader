@@ -12,12 +12,6 @@
 (function() {
     'use strict';
 
-    // 检测当前页面是否是 Bing 搜索页面
-    if (!window.location.href.startsWith('https://www.bing.com/')) {
-        window.open('https://www.bing.com/', '_self');
-        return;
-    }
-
     // 创建弹出框
     const dialog = document.createElement('div');
     dialog.style.position = 'fixed';
@@ -71,8 +65,8 @@
     
     dialog.appendChild(closeButton);
     dialog.appendChild(textarea);
-    dialog.appendChild(downloadButton);
     dialog.appendChild(progressBar);
+    dialog.appendChild(downloadButton);
     document.body.appendChild(dialog);
 
     // 关闭按钮点击事件
@@ -83,7 +77,7 @@
     // 下载按钮点击事件
     downloadButton.addEventListener('click', async () => {
         let totalTitles = 0, completedTitles = 0;
-        const titles = textarea.value.split('\n').filter(title => title.trim() !== '');
+        const titles = Array.from(new Set(textarea.value.split('\n').map(title => title.trim()))).filter(title => title !== '');
         for (const title of titles) {
 
             const searchQuery = title.replace(/ /g, '+') + "+pdf";
