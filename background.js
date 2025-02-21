@@ -54,9 +54,25 @@
     downloadButton.style.display = 'block';
     downloadButton.style.marginTop = '10px';
 
+    const progressBar = document.createElement('div');
+    progressBar.style.width = '100%';
+    progressBar.style.height = '20px';
+    progressBar.style.backgroundColor = '#f3f3f3';
+    progressBar.style.position = 'relative';
+    progressBar.style.marginBottom = '10px';
+
+    const progress = document.createElement('div');
+    progress.style.height = '100%';
+    progress.style.width = '0%';
+    progress.style.backgroundColor = '#4caf50';
+    progress.style.transition = 'width 0.5s';
+    progressBar.appendChild(progress);
+
+    
     dialog.appendChild(closeButton);
     dialog.appendChild(textarea);
     dialog.appendChild(downloadButton);
+    dialog.appendChild(progressBar);
     document.body.appendChild(dialog);
 
     // 关闭按钮点击事件
@@ -66,6 +82,7 @@
 
     // 下载按钮点击事件
     downloadButton.addEventListener('click', async () => {
+        let totalTitles = 0, completedTitles = 0;
         const titles = textarea.value.split('\n').filter(title => title.trim() !== '');
         for (const title of titles) {
 
@@ -81,7 +98,14 @@
                     // 替换掉 Windows 文件名中不允许的字符
                     const safeTitle = title.replace(/[\\\/:*?"<>|\r\n]/g, '');
 
-                    GM_download({ url: downloadUrl, name: `${safeTitle}.pdf` });
+                    GM_download({ url: downloadUrl, name: `${safeTitle}.pdf`,onload: () => {
+                        completedTitles++;
+                        if(completedTitles >= totalTitles){
+                            progressBar.style.display = 'none'; // 全部完成后隐藏进度条
+                        } else {
+                            progress.style.width = `${(completedTitles / totalTitles) * 100}%`;
+                        }
+                    }});
                 } else {
                     console.warn(`未找到 ${title} 的 PDF 下载链接`);
                 }
