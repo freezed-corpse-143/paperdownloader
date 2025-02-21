@@ -1,64 +1,39 @@
+# Bing PDF Downloader
 
-# Paper Downloader
+This is a user script designed to search for paper titles on Bing and download the corresponding PDF files. Users can input multiple paper titles, and the script will automatically search Bing and download the relevant PDFs.
 
-This project provides a tool to download academic papers based on their titles using Bing search. It supports two download methods: `requests` and `aria2`.
+## Features
 
-## Requirements
-
-- Python 3.x
-- Selenium
-- BeautifulSoup4
-- requests
-- EdgeDriver (for Selenium)
+- Search for paper titles on Bing.
+- Automatically identify and download PDF files from search results.
+- Supports multiple paper titles in a single input.
+- Handles common academic platforms like arXiv, OpenReview, and AAAI.
 
 ## Installation
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/paper-downloader.git
-   cd paper-downloader
-   ```
-
-2. Install the required Python packages:
-   
-3. Download the EdgeDriver executable and place it in a known location. Update the path in `paper_downloader.py` if necessary:
-   ```python
-   service = Service(r"{your edge driver path}\msedgedriver.exe")
-   ```
+1. Ensure you have a userscript manager installed, such as [Tampermonkey](https://www.tampermonkey.net/) or [Greasemonkey](https://www.greasespot.net/).
+2. Click on the following link to install the script: [Bing PDF Downloader Script](path/to/your/script).
+3. Once installed, navigate to Bing (`https://www.bing.com`), and the script will automatically activate.
 
 ## Usage
 
-1. Prepare a text file (`title_list.txt`) containing the titles of the papers you want to download, one title per line.
+1. Open Bing in your browser.
+2. A dialog box will appear in the center of the screen.
+3. Enter the paper titles, one per line, in the text area provided.
+4. Click the "Download" button to start the search and download process.
+5. The script will search for each title, identify PDF links, and download the files automatically.
 
-2. Run the script with the following command:
-   ```bash
-   python paper_downloader.py --title_list_path title_list.txt --downloader requests --save_dir ./output
-   ```
+## Supported Platforms
 
-### Arguments
+The script is optimized to handle PDF links from the following platforms:
+- arXiv (`https://arxiv.org`)
+- OpenReview (`https://openreview.net`)
+- AAAI (`https://ojs.aaai.org`)
 
-- `--title_list_path`: Path to the file containing the list of titles.
-- `--start_char_idx`: Starting character index for reading titles (default: 0).
-- `--downloader`: Downloader to use (`requests` or `aria2`, default: `requests`).
-- `--save_dir`: Directory to save downloaded files (default: `./output`).
-
-## Example
-
-Given a `title_list.txt` file with the following content:
-```
-Deep Learning for Image Recognition
-Reinforcement Learning: An Introduction
-```
-
-Running the script:
-```bash
-python paper_downloader.py --title_list_path title_list.txt --downloader requests --save_dir ./papers
-```
-
-This will search for each title on Bing, find the corresponding PDF URL, and download the PDFs to the `./papers` directory.
+If a PDF link is found on these platforms, the script will automatically download the file.
 
 ## Notes
 
-- The script uses Bing search to find the PDF URLs. Ensure that the titles are precise to get accurate results.
-- The `requests` downloader is used by default. You can switch to `aria2` for potentially faster downloads.
-- The script is configured to run in headless mode, meaning it won't open a browser window.
+- Ensure that the paper titles are accurate to improve search results.
+- The script may not find PDFs for all titles, especially if they are not openly available.
+- For any issues or feature requests, please open an issue on the GitHub repository
