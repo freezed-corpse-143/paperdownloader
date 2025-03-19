@@ -48,24 +48,9 @@
     downloadButton.style.display = 'block';
     downloadButton.style.marginTop = '10px';
 
-    const progressBar = document.createElement('div');
-    progressBar.style.width = '100%';
-    progressBar.style.height = '20px';
-    progressBar.style.backgroundColor = '#f3f3f3';
-    progressBar.style.position = 'relative';
-    progressBar.style.marginBottom = '10px';
 
-    const progress = document.createElement('div');
-    progress.style.height = '100%';
-    progress.style.width = '0%';
-    progress.style.backgroundColor = '#4caf50';
-    progress.style.transition = 'width 0.5s';
-    progressBar.appendChild(progress);
-
-    
     dialog.appendChild(closeButton);
     dialog.appendChild(textarea);
-    dialog.appendChild(progressBar);
     dialog.appendChild(downloadButton);
     document.body.appendChild(dialog);
 
@@ -76,7 +61,6 @@
 
     // 下载按钮点击事件
     downloadButton.addEventListener('click', async () => {
-        let totalTitles = 0, completedTitles = 0;
         const titles = Array.from(new Set(textarea.value.split('\n').map(title => title.trim()))).filter(title => title !== '');
         for (const title of titles) {
 
@@ -92,14 +76,7 @@
                     // 替换掉 Windows 文件名中不允许的字符
                     const safeTitle = title.replace(/[\\\/:*?"<>|\r\n]/g, '');
 
-                    GM_download({ url: downloadUrl, name: `${safeTitle}.pdf`,onload: () => {
-                        completedTitles++;
-                        if(completedTitles >= totalTitles){
-                            progressBar.style.display = 'none'; // 全部完成后隐藏进度条
-                        } else {
-                            progress.style.width = `${(completedTitles / totalTitles) * 100}%`;
-                        }
-                    }});
+                    GM_download({ url: downloadUrl, name: `${safeTitle}.pdf`});
                 } else {
                     console.warn(`未找到 ${title} 的 PDF 下载链接`);
                 }
@@ -171,6 +148,16 @@
             if (url.startsWith("https://openreview.net/pdf")) return url;
             if (url.startsWith("https://openreview.net/forum")) return url.replace("forum", "pdf");
             if (url.startsWith("https://ojs.aaai.org/index.php/AAAI/article/download/")) return url;
+            if (url.startsWith("https://aaai.org/ojs/index.php/AAAI/article/view/")) {
+                const pattern = /\/\d+\/\d+$/;
+                if (pattern.test(url)) {
+                    return url;
+                }
+            };
+            if (url.startsWith("https://aclanthology.org/")){
+                if (url.endsWith("/")) { url = url.slice(0,-1);}
+                return url + ".pdf";
+            };
         }
         return null;
     }
