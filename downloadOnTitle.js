@@ -148,6 +148,7 @@
             if (url.startsWith("https://openreview.net/pdf")) return url;
             if (url.startsWith("https://openreview.net/forum")) return url.replace("forum", "pdf");
             if (url.startsWith("https://ojs.aaai.org/index.php/AAAI/article/download/")) return url;
+            if (url.startsWith("https://dl.acm.org/doi/pdf/")) return url;
             if (url.startsWith("https://aaai.org/ojs/index.php/AAAI/article/view/")) {
                 const pattern = /\/\d+\/\d+$/;
                 if (pattern.test(url)) {
