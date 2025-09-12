@@ -5,6 +5,7 @@
 // @description  在 Bing 上搜索论文标题并下载 PDF
 // @author       Your Name
 // @match        *://www.bing.com/*
+// @connect      ojs.aaai.org
 // @grant        GM_xmlhttpRequest
 // @grant        GM_download
 // ==/UserScript==
@@ -70,12 +71,11 @@
             try {
                 const html = await fetchSearchResults(searchUrl);
                 const resultList = bingParserResultHtml(html);
-                const downloadUrl = selectDownloadUrl(resultList);
+                const downloadUrl = await selectDownloadUrl(resultList);
 
                 if (downloadUrl) {
                     // 替换掉 Windows 文件名中不允许的字符
                     const safeTitle = title.replace(/[\\\/:*?"<>|\r\n]/g, '').replace(/\.+$/, '');
-
                     GM_download({ url: downloadUrl, name: `${safeTitle}.pdf`});
                 } else {
                     console.warn(`未找到 ${title} 的 PDF 下载链接`);
@@ -138,8 +138,35 @@
         return resultList;
     }
 
+    // 获取AAAI论文PDF链接
+    async function fetchAAAIpdfUrl(url) {
+        return new Promise((resolve, reject) => {
+            GM_xmlhttpRequest({
+                method: 'GET',
+                url: url,
+                onload: function(response) {
+                    try {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(response.responseText, 'text/html');
+                        const pdfLink = doc.querySelector('a.obj_galley_link.pdf');
+                        if (pdfLink && pdfLink.href) {
+                            resolve(pdfLink.href);
+                        } else {
+                            resolve(null);
+                        }
+                    } catch (error) {
+                        reject(error);
+                    }
+                },
+                onerror: function(error) {
+                    reject(error);
+                }
+            });
+        });
+    }
+
     // 选择下载链接
-    function selectDownloadUrl(urlList) {
+    async function selectDownloadUrl(urlList) {
         for (let url of urlList) {
             if (url.endsWith(".pdf")) return url;
             if (url.startsWith("https://arxiv.org/pdf")) return url;
@@ -153,6 +180,14 @@
                 const pattern = /\/\d+\/\d+$/;
                 if (pattern.test(url)) {
                     return url;
+                }
+            };
+            if (url.startsWith("https://ojs.aaai.org/index.php/AAAI/article/view/")) {
+                try {
+                    const pdfUrl = await fetchAAAIpdfUrl(url);
+                    if (pdfUrl) return pdfUrl;
+                } catch (error) {
+                    console.warn(`获取AAAI论文PDF链接失败: ${url}`, error);
                 }
             };
             if (url.startsWith("https://aclanthology.org/")){
