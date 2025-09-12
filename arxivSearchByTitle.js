@@ -55,7 +55,7 @@
 
                 const nextParagraphs = nextPageDoc.querySelectorAll('p.title.is-5.mathjax');
                 nextParagraphs.forEach(p => {
-                    const text = p.textContent.replace(/\n\s+/g, '').replace(/\.+$/, '');
+                    const text = p.textContent.replace(/\n\s+/g, '');
                     texts.push(text);
                 });
 
