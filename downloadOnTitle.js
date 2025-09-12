@@ -74,7 +74,7 @@
 
                 if (downloadUrl) {
                     // 替换掉 Windows 文件名中不允许的字符
-                    const safeTitle = title.replace(/[\\\/:*?"<>|\r\n]/g, '');
+                    const safeTitle = title.replace(/[\\\/:*?"<>|\r\n]/g, '').replace(/\.+$/, '');
 
                     GM_download({ url: downloadUrl, name: `${safeTitle}.pdf`});
                 } else {
